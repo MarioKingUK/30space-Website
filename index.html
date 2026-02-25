@@ -105,12 +105,12 @@
     </style>
 </head>
 <body class="bg-[#FFD700] m-0 p-0 antialiased font-sans">
-    <main class="relative flex flex-col items-center w-full min-h-screen overflow-hidden">
+    <main id="main-area" class="relative flex flex-col items-center w-full min-h-screen overflow-hidden">
         <div id="dust-layer" class="dust-layer" aria-hidden="true"></div>
 
         <div id="title-cluster" class="relative z-20 flex flex-col items-center w-auto px-4 pt-[360px] gap-[10px]">
             <h1 id="title-text" class="text-black text-[clamp(72px,16vw,160px)] leading-none tracking-tight whitespace-nowrap">
-                <span class="font-light text-[#8B4513]">30</span><span class="font-extrabold space-word">S<span class="p-anchor">p<img id="p-character" src="front.png" alt="" class="p-character" aria-hidden="true"></span>ace</span>
+                <span class="font-light text-[#8B4513]">30</span><span class="font-extrabold space-word">S<span id="p-anchor" class="p-anchor">p<img id="p-character" src="front.png" alt="" class="p-character" aria-hidden="true"></span>ace</span>
             </h1>
 
             <a href="mailto:contact@30space.com"
@@ -125,11 +125,15 @@
         const MIN_NUMBER = 10;
         const MAX_NUMBER = 40;
         const FRONT_SRC = "front.png";
+        const LEFT_SRC = "left.png";
+        const RIGHT_SRC = "right.png";
         const JUMP_SRC = "back_jump.png";
         const particles = [];
+        const mainArea = document.getElementById("main-area");
         const dustLayer = document.getElementById("dust-layer");
         const titleCluster = document.getElementById("title-cluster");
         const titleText = document.getElementById("title-text");
+        const pAnchor = document.getElementById("p-anchor");
         const character = document.getElementById("p-character");
 
         let jumpLock = false;
@@ -143,13 +147,20 @@
             return Math.floor(random(min, max + 1));
         }
 
+        function setCharacterFacing(src) {
+            if (!character || jumpLock || character.src.endsWith(src)) {
+                return;
+            }
+            character.src = src;
+        }
+
         function jumpCharacter() {
             if (!character) {
                 return;
             }
 
             const now = window.performance.now();
-            if (jumpLock || now - lastJumpAt < 220) {
+            if (jumpLock || now - lastJumpAt < 420) {
                 return;
             }
 
@@ -165,6 +176,50 @@
                 character.src = FRONT_SRC;
                 jumpLock = false;
             }, 560);
+        }
+
+        function isInsideRect(x, y, rect) {
+            return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+        }
+
+        function handleInteractionPoint(x, y) {
+            if (!titleText || !pAnchor) {
+                return;
+            }
+
+            const titleRect = titleText.getBoundingClientRect();
+            const pRect = pAnchor.getBoundingClientRect();
+            const pCenterX = pRect.left + pRect.width / 2;
+            const inTitle = isInsideRect(x, y, titleRect);
+            const inTopOutsideTitle = y < titleRect.top && y >= 0;
+
+            if (inTitle) {
+                if (x < pCenterX) {
+                    setCharacterFacing(LEFT_SRC);
+                } else {
+                    setCharacterFacing(RIGHT_SRC);
+                }
+                return;
+            }
+
+            if (inTopOutsideTitle) {
+                jumpCharacter();
+                return;
+            }
+
+            setCharacterFacing(FRONT_SRC);
+        }
+
+        function handlePointerMove(event) {
+            handleInteractionPoint(event.clientX, event.clientY);
+        }
+
+        function handleTouch(event) {
+            const touch = event.touches[0] || event.changedTouches[0];
+            if (!touch) {
+                return;
+            }
+            handleInteractionPoint(touch.clientX, touch.clientY);
         }
 
         function placeParticles() {
@@ -220,11 +275,13 @@
             window.setTimeout(triggerBurst, random(2200, 4800));
         }
 
-        if (titleText) {
-            titleText.addEventListener("pointerenter", jumpCharacter);
-            titleText.addEventListener("pointermove", jumpCharacter);
-            titleText.addEventListener("touchstart", jumpCharacter, { passive: true });
-            titleText.addEventListener("touchmove", jumpCharacter, { passive: true });
+        if (mainArea) {
+            mainArea.addEventListener("pointermove", handlePointerMove);
+            mainArea.addEventListener("touchstart", handleTouch, { passive: true });
+            mainArea.addEventListener("touchmove", handleTouch, { passive: true });
+            mainArea.addEventListener("pointerleave", () => {
+                setCharacterFacing(FRONT_SRC);
+            });
         }
 
         placeParticles();
