@@ -64,6 +64,10 @@
             animation: character-jump 560ms cubic-bezier(0.22, 0.75, 0.2, 1) 1;
         }
 
+        .p-character.is-super-jump {
+            animation: character-super-jump 560ms cubic-bezier(0.22, 0.75, 0.2, 1) 1;
+        }
+
         @keyframes character-jump {
             0% {
                 transform: translateY(0) scale(1, 1);
@@ -79,6 +83,27 @@
             }
             85% {
                 transform: translateY(-0.12em) scale(1.01, 0.99);
+            }
+            100% {
+                transform: translateY(0) scale(1, 1);
+            }
+        }
+
+        @keyframes character-super-jump {
+            0% {
+                transform: translateY(0) scale(1, 1);
+            }
+            20% {
+                transform: translateY(0.02em) scale(1.06, 0.94);
+            }
+            45% {
+                transform: translateY(-0.48em) scale(0.98, 1.04) rotate(-3deg);
+            }
+            65% {
+                transform: translateY(-0.68em) scale(1, 1) rotate(2deg);
+            }
+            85% {
+                transform: translateY(-0.20em) scale(1.01, 0.99);
             }
             100% {
                 transform: translateY(0) scale(1, 1);
@@ -128,6 +153,9 @@
         const LEFT_SRC = "left.png";
         const RIGHT_SRC = "right.png";
         const JUMP_SRC = "back_jump.png";
+        const JUMP_COOLDOWN_MS = 420;
+        const JUMP_DURATION_MS = 560;
+        const COMBO_WINDOW_MS = 1000;
         const particles = [];
         const mainArea = document.getElementById("main-area");
         const dustLayer = document.getElementById("dust-layer");
@@ -138,6 +166,7 @@
 
         let jumpLock = false;
         let lastJumpAt = 0;
+        let jumpStreak = 0;
 
         function random(min, max) {
             return Math.random() * (max - min) + min;
@@ -160,22 +189,25 @@
             }
 
             const now = window.performance.now();
-            if (jumpLock || now - lastJumpAt < 420) {
+            if (jumpLock || now - lastJumpAt < JUMP_COOLDOWN_MS) {
                 return;
             }
+
+            jumpStreak = now - lastJumpAt <= COMBO_WINDOW_MS ? jumpStreak + 1 : 1;
+            const isSuperJump = jumpStreak >= 4;
 
             jumpLock = true;
             lastJumpAt = now;
             character.src = JUMP_SRC;
-            character.classList.remove("is-jumping");
+            character.classList.remove("is-jumping", "is-super-jump");
             void character.offsetWidth;
-            character.classList.add("is-jumping");
+            character.classList.add(isSuperJump ? "is-super-jump" : "is-jumping");
 
             window.setTimeout(() => {
-                character.classList.remove("is-jumping");
+                character.classList.remove("is-jumping", "is-super-jump");
                 character.src = FRONT_SRC;
                 jumpLock = false;
-            }, 560);
+            }, JUMP_DURATION_MS);
         }
 
         function isInsideRect(x, y, rect) {
