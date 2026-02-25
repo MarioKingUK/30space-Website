@@ -37,6 +37,54 @@
             opacity: 0.78;
         }
 
+        .space-word {
+            position: relative;
+            display: inline-block;
+        }
+
+        .p-anchor {
+            position: relative;
+            display: inline-block;
+        }
+
+        .p-character {
+            position: absolute;
+            left: 0.07em;
+            bottom: 0.65em;
+            width: 0.114em;
+            height: auto;
+            pointer-events: none;
+            user-select: none;
+            z-index: 3;
+            transform-origin: center bottom;
+            will-change: transform;
+        }
+
+        .p-character.is-jumping {
+            animation: character-jump 560ms cubic-bezier(0.22, 0.75, 0.2, 1) 1;
+        }
+
+        @keyframes character-jump {
+            0% {
+                transform: translateY(0) scale(1, 1);
+            }
+            20% {
+                transform: translateY(0.01em) scale(1.04, 0.96);
+            }
+            45% {
+                transform: translateY(-0.24em) scale(0.98, 1.03) rotate(-2deg);
+            }
+            65% {
+                transform: translateY(-0.34em) scale(1, 1) rotate(1deg);
+            }
+            85% {
+                transform: translateY(-0.12em) scale(1.01, 0.99);
+            }
+            100% {
+                transform: translateY(0) scale(1, 1);
+            }
+        }
+
         @keyframes dust-flow {
             0% {
                 transform: translate3d(var(--start-x), var(--start-y), 0) rotate(0deg);
@@ -60,9 +108,9 @@
     <main class="relative flex flex-col items-center w-full min-h-screen overflow-hidden">
         <div id="dust-layer" class="dust-layer" aria-hidden="true"></div>
 
-        <div id="title-cluster" class="relative z-20 flex flex-col items-center w-[168px] pt-[360px] gap-[10px]">
-            <h1 class="text-black text-[80pt] leading-none tracking-tight">
-                <span class="font-light text-[#8B4513]">30</span><span class="font-extrabold">Space</span>
+        <div id="title-cluster" class="relative z-20 flex flex-col items-center w-auto px-4 pt-[360px] gap-[10px]">
+            <h1 id="title-text" class="text-black text-[clamp(72px,16vw,160px)] leading-none tracking-tight whitespace-nowrap">
+                <span class="font-light text-[#8B4513]">30</span><span class="font-extrabold space-word">S<span class="p-anchor">p<img id="p-character" src="front.png" alt="" class="p-character" aria-hidden="true"></span>ace</span>
             </h1>
 
             <a href="mailto:contact@30space.com"
@@ -76,9 +124,16 @@
         const PARTICLE_COUNT = 30;
         const MIN_NUMBER = 10;
         const MAX_NUMBER = 40;
+        const FRONT_SRC = "front.png";
+        const JUMP_SRC = "back_jump.png";
         const particles = [];
         const dustLayer = document.getElementById("dust-layer");
         const titleCluster = document.getElementById("title-cluster");
+        const titleText = document.getElementById("title-text");
+        const character = document.getElementById("p-character");
+
+        let jumpLock = false;
+        let lastJumpAt = 0;
 
         function random(min, max) {
             return Math.random() * (max - min) + min;
@@ -86,6 +141,30 @@
 
         function randomInt(min, max) {
             return Math.floor(random(min, max + 1));
+        }
+
+        function jumpCharacter() {
+            if (!character) {
+                return;
+            }
+
+            const now = window.performance.now();
+            if (jumpLock || now - lastJumpAt < 220) {
+                return;
+            }
+
+            jumpLock = true;
+            lastJumpAt = now;
+            character.src = JUMP_SRC;
+            character.classList.remove("is-jumping");
+            void character.offsetWidth;
+            character.classList.add("is-jumping");
+
+            window.setTimeout(() => {
+                character.classList.remove("is-jumping");
+                character.src = FRONT_SRC;
+                jumpLock = false;
+            }, 560);
         }
 
         function placeParticles() {
@@ -139,6 +218,13 @@
             }, 800);
 
             window.setTimeout(triggerBurst, random(2200, 4800));
+        }
+
+        if (titleText) {
+            titleText.addEventListener("pointerenter", jumpCharacter);
+            titleText.addEventListener("pointermove", jumpCharacter);
+            titleText.addEventListener("touchstart", jumpCharacter, { passive: true });
+            titleText.addEventListener("touchmove", jumpCharacter, { passive: true });
         }
 
         placeParticles();
