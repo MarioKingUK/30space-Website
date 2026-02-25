@@ -68,6 +68,10 @@
             animation: character-super-jump 560ms cubic-bezier(0.22, 0.75, 0.2, 1) 1;
         }
 
+        .p-character.is-ultra-jump {
+            animation: character-ultra-jump 560ms cubic-bezier(0.22, 0.75, 0.2, 1) 1;
+        }
+
         @keyframes character-jump {
             0% {
                 transform: translateY(0) scale(1, 1);
@@ -104,6 +108,26 @@
             }
             85% {
                 transform: translateY(-0.20em) scale(1.01, 0.99);
+            }
+            100% {
+                transform: translateY(0) scale(1, 1);
+            }
+        }
+        @keyframes character-ultra-jump {
+            0% {
+                transform: translateY(0) scale(1, 1);
+            }
+            20% {
+                transform: translateY(0.03em) scale(1.08, 0.92);
+            }
+            45% {
+                transform: translateY(-0.72em) scale(0.97, 1.05) rotate(-4deg);
+            }
+            65% {
+                transform: translateY(-1.02em) scale(1, 1) rotate(2deg);
+            }
+            85% {
+                transform: translateY(-0.30em) scale(1.01, 0.99);
             }
             100% {
                 transform: translateY(0) scale(1, 1);
@@ -195,16 +219,17 @@
 
             jumpStreak = now - lastJumpAt <= COMBO_WINDOW_MS ? jumpStreak + 1 : 1;
             const isSuperJump = jumpStreak >= 4;
+            const isUltraJump = jumpStreak >= 6;
 
             jumpLock = true;
             lastJumpAt = now;
             character.src = JUMP_SRC;
-            character.classList.remove("is-jumping", "is-super-jump");
+            character.classList.remove("is-jumping", "is-super-jump", "is-ultra-jump");
             void character.offsetWidth;
-            character.classList.add(isSuperJump ? "is-super-jump" : "is-jumping");
+            character.classList.add(isUltraJump ? "is-ultra-jump" : (isSuperJump ? "is-super-jump" : "is-jumping"));
 
             window.setTimeout(() => {
-                character.classList.remove("is-jumping", "is-super-jump");
+                character.classList.remove("is-jumping", "is-super-jump", "is-ultra-jump");
                 character.src = FRONT_SRC;
                 jumpLock = false;
             }, JUMP_DURATION_MS);
