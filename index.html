@@ -5,22 +5,148 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <title>30Space</title>
+    <style>
+        :root {
+            --dust-yellow: #fff08a;
+        }
+
+        .dust-layer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .dust-number {
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: var(--dust-yellow);
+            font-weight: 700;
+            line-height: 1;
+            text-shadow: 0 0 8px rgba(255, 238, 120, 0.35);
+            opacity: 0.32;
+            will-change: transform, opacity;
+            animation: dust-flow var(--dur) ease-in-out var(--delay) infinite alternate;
+            transform: translate3d(var(--start-x), var(--start-y), 0);
+        }
+
+        .dust-number.burst {
+            animation-duration: calc(var(--dur) * 0.2) !important;
+            opacity: 0.78;
+        }
+
+        @keyframes dust-flow {
+            0% {
+                transform: translate3d(var(--start-x), var(--start-y), 0) rotate(0deg);
+                opacity: 0.16;
+            }
+            20% {
+                opacity: 0.45;
+            }
+            50% {
+                transform: translate3d(calc(var(--start-x) + var(--drift-x) * 0.6), calc(var(--start-y) + var(--drift-y) * 0.6), 0) rotate(calc(var(--spin) * 0.6));
+                opacity: 0.52;
+            }
+            100% {
+                transform: translate3d(calc(var(--start-x) + var(--drift-x)), calc(var(--start-y) + var(--drift-y)), 0) rotate(var(--spin));
+                opacity: 0.14;
+            }
+        }
+    </style>
 </head>
 <body class="bg-[#FFD700] m-0 p-0 antialiased font-sans">
-    <main class="flex flex-col items-center w-full min-h-screen">
-        
-        <div class="flex flex-col items-center w-[168px] pt-[360px] gap-[10px]">
-            
+    <main class="relative flex flex-col items-center w-full min-h-screen overflow-hidden">
+        <div id="dust-layer" class="dust-layer" aria-hidden="true"></div>
+
+        <div id="title-cluster" class="relative z-20 flex flex-col items-center w-[168px] pt-[360px] gap-[10px]">
             <h1 class="text-black text-[80pt] leading-none tracking-tight">
                 <span class="font-light text-[#8B4513]">30</span><span class="font-extrabold">Space</span>
             </h1>
-            
-            <a href="mailto:contact@30space.com" 
+
+            <a href="mailto:contact@30space.com"
                class="text-[#E4171A] text-[10pt] font-medium hover:underline whitespace-nowrap">
                 contact@30space.com
             </a>
-            
         </div>
     </main>
+
+    <script>
+        const PARTICLE_COUNT = 30;
+        const MIN_NUMBER = 10;
+        const MAX_NUMBER = 40;
+        const particles = [];
+        const dustLayer = document.getElementById("dust-layer");
+        const titleCluster = document.getElementById("title-cluster");
+
+        function random(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        function randomInt(min, max) {
+            return Math.floor(random(min, max + 1));
+        }
+
+        function placeParticles() {
+            particles.length = 0;
+            dustLayer.innerHTML = "";
+
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            const titleRect = titleCluster.getBoundingClientRect();
+            const centerX = titleRect.left + titleRect.width / 2;
+            const centerY = titleRect.top + titleRect.height / 2;
+
+            const numberPool = Array.from({ length: MAX_NUMBER - MIN_NUMBER + 1 }, (_, index) => MIN_NUMBER + index)
+                .sort(() => Math.random() - 0.5)
+                .slice(0, Math.min(PARTICLE_COUNT, MAX_NUMBER - MIN_NUMBER + 1));
+
+            for (let i = 0; i < numberPool.length; i += 1) {
+                const value = numberPool[i];
+                const node = document.createElement("span");
+
+                node.className = "dust-number";
+                node.textContent = String(value);
+                node.style.fontSize = `${value}px`;
+                node.style.setProperty("--dur", `${random(7.5, 15.5).toFixed(2)}s`);
+                node.style.setProperty("--delay", `${random(-8, 0).toFixed(2)}s`);
+                node.style.setProperty("--spin", `${random(-30, 30).toFixed(2)}deg`);
+
+                const startX = Math.max(0, Math.min(viewportWidth - value, centerX + random(-360, 360)));
+                const startY = Math.max(0, Math.min(viewportHeight - value, centerY + random(-110, 110)));
+                const driftX = random(-320, 320);
+                const driftY = random(-320, 320);
+
+                node.style.setProperty("--start-x", `${startX.toFixed(2)}px`);
+                node.style.setProperty("--start-y", `${startY.toFixed(2)}px`);
+                node.style.setProperty("--drift-x", `${driftX.toFixed(2)}px`);
+                node.style.setProperty("--drift-y", `${driftY.toFixed(2)}px`);
+
+                dustLayer.appendChild(node);
+                particles.push(node);
+            }
+        }
+
+        function triggerBurst() {
+            const burstCount = randomInt(2, 5);
+            const shuffled = [...particles].sort(() => Math.random() - 0.5);
+            const picked = shuffled.slice(0, burstCount);
+
+            picked.forEach((node) => node.classList.add("burst"));
+            window.setTimeout(() => {
+                picked.forEach((node) => node.classList.remove("burst"));
+            }, 800);
+
+            window.setTimeout(triggerBurst, random(2200, 4800));
+        }
+
+        placeParticles();
+        triggerBurst();
+
+        window.addEventListener("resize", () => {
+            placeParticles();
+        });
+    </script>
 </body>
 </html>
