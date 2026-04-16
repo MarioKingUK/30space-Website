@@ -3,24 +3,20 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ShareTest</title>
-  <meta name="description" content="Private messaging with friends." />
+  <title>Join me on ShareTest</title>
+  
+  <meta name="apple-itunes-app" content="app-clip-bundle-id=com.30space.ShareTest.Clip, app-id=YOUR_APP_ID">
 
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="ShareTest" />
-  <meta property="og:description" content="Private messaging with friends." />
+  <meta property="og:title" content="Join me on ShareTest" />
+  <meta property="og:description" content="Connect and chat privately." />
   <meta property="og:url" content="https://30space.com/sharetest" />
   <meta property="og:image" content="https://30space.com/sharetest/chat-icon-1.jpg" />
-
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="ShareTest" />
-  <meta name="twitter:description" content="Private messaging with friends." />
-  <meta name="twitter:image" content="https://30space.com/sharetest/chat-icon-1.jpg" />
 
   <style>
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: #f7f7fb;
       color: #111;
       display: grid;
@@ -29,58 +25,111 @@
     }
 
     .card {
-      width: min(560px, 92vw);
+      width: min(400px, 90vw);
       background: white;
-      border-radius: 20px;
-      padding: 32px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+      border-radius: 24px;
+      padding: 40px 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.05);
       text-align: center;
     }
 
+    /* Distribution Design: Immediate value/trust */
+    .avatar {
+      width: 80px;
+      height: 80px;
+      background: #111;
+      color: white;
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: bold;
+    }
+
     h1 {
-      margin: 0 0 12px;
-      font-size: 40px;
+      margin: 0 0 8px;
+      font-size: 28px;
+      letter-spacing: -0.5px;
     }
 
     p {
-      font-size: 18px;
-      line-height: 1.5;
-      margin: 10px 0;
+      font-size: 17px;
+      line-height: 1.4;
+      color: #666;
+      margin: 0 0 24px;
     }
 
     .button {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 14px 22px;
-      border-radius: 999px;
+      display: block;
+      padding: 16px;
+      border-radius: 16px;
       background: #111;
       color: white;
       text-decoration: none;
       font-weight: 600;
+      font-size: 17px;
+      border: none;
+      cursor: pointer;
+      width: 100%;
     }
 
-    .small {
-      margin-top: 22px;
-      font-size: 15px;
-      color: #666;
-    }
-
-    .preview-image {
-      width: 96px;
-      height: 96px;
-      object-fit: cover;
-      border-radius: 22px;
-      margin-bottom: 20px;
+    .button:active {
+      transform: scale(0.98);
     }
   </style>
 </head>
 <body>
   <main class="card">
-    <img class="preview-image" src="/sharetest/chat-icon-1.jpg" alt="ChatApp icon" />
-    <h1>ChatApp</h1>
-    <p>Private messaging with friends</p>
-    <p><a class="button" href="https://30space.com/sharetest">Download ShareTest</a></p>
-    <p class="small">Beta / install instructions</p>
+    <div id="avatar" class="avatar">?</div>
+    <h1 id="headline">Join ShareTest</h1>
+    <p id="subline">Install the app to connect with your friend automatically.</p>
+    
+    <button class="button" onclick="handleDownload()">Download & Connect</button>
   </main>
+
+  <script>
+    // 1. Extract username from URL (e.g., ?u=fai) 
+    const params = new URLSearchParams(window.location.search);
+    const inviter = params.get('u') || 'a friend';
+    
+    // UI Personalization for "WhatsApp feel" [cite: 6, 45]
+    if (inviter !== 'a friend') {
+      document.getElementById('avatar').innerText = inviter.charAt(0).toUpperCase();
+      document.getElementById('headline').innerText = `${inviter} invited you`;
+      document.getElementById('subline').innerText = `Connect with ${inviter} and chat privately.`;
+    }
+
+    function handleDownload() {
+      const joinToken = `join:${inviter}`;
+      const appStoreUrl = "https://30space.com/sharetest"; // Replace with real App Store link [cite: 68]
+
+      // 2. [Task 19] The Clipboard Bridge
+      // Copies the token so the app can detect it on first launch 
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(joinToken)
+          .then(() => navigate(appStoreUrl))
+          .catch(() => fallbackCopy(joinToken, appStoreUrl));
+      } else {
+        fallbackCopy(joinToken, appStoreUrl);
+      }
+    }
+
+    function fallbackCopy(text, url) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed"; 
+      document.body.appendChild(textArea);
+      textArea.select();
+      try { document.execCommand('copy'); } catch (err) {}
+      document.body.removeChild(textArea);
+      navigate(url);
+    }
+
+    function navigate(url) {
+      window.location.href = url;
+    }
+  </script>
 </body>
 </html>
