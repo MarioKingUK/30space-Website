@@ -2,13 +2,19 @@
   "applinks": {
     "details": [
       {
-        "appIDs": [ "S9BMKRGHW7.com.AITest.ChatApp" ],
+        "appIDs": ["S9BMKRGHW7.com.AITest.ChatApp"],
         "components": [
           { "/": "/chatapp0001*" }
         ]
       },
       {
-        "appIDs": [ "S9BMKRGHW7.com.AITest.ShareTest" ],
+        "appIDs": ["S9BMKRGHW7.com.AITest.ChatApp1"],
+        "components": [
+          { "/": "/chatapp1*" }
+        ]
+      },
+      {
+        "appIDs": ["S9BMKRGHW7.com.AITest.ShareTest"],
         "components": [
           { "/": "/sharetest*" }
         ]
