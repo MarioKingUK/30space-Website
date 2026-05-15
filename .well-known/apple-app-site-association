@@ -10,7 +10,7 @@
       {
         "appIDs": ["S9BMKRGHW7.com.AITest.ChatApp1"],
         "components": [
-          { "/": "/chatapp1*" }
+          { "/": "/chatapp1" }
         ]
       },
       {
