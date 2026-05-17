@@ -3,16 +3,16 @@
     "apps": [],
     "details": [
       {
-        "appIDs": ["S9BMKRGHW7.com.AITest.ChatApp"],
+        "appIDs": ["S9BMKRGHW7.com.AITest.ChatApp1"],
         "components": [
-          { "/": "/chatapp0001*" }
+          { "/": "/a*" },
+          { "/": "/chatapp1*" }
         ]
       },
       {
-        "appIDs": ["S9BMKRGHW7.com.AITest.ChatApp1"],
+        "appIDs": ["S9BMKRGHW7.com.AITest.ChatApp"],
         "components": [
-          { "/": "/chatapp1*" },
-          { "/": "/a*" }
+          { "/": "/chatapp0001*" }
         ]
       },
       {
