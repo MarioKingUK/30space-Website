@@ -3,6 +3,12 @@
     "apps": [],
     "details": [
       {
+        "appIDs": ["S9BMKRGHW7.com.AITest.ChatApp4"],
+        "components": [
+          { "/": "/chatapp4*" }
+        ]
+      },
+      {
         "appIDs": ["S9BMKRGHW7.com.AITest.ChatApp3"],
         "components": [
           { "/": "/chatapp3*" }
