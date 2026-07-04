@@ -3,6 +3,12 @@
     "apps": [],
     "details": [
       {
+        "appIDs": ["S9BMKRGHW7.com.AITest.HelloRuleA"],
+        "components": [
+          { "/": "/hellorulea*" }
+        ]
+      },
+      {
         "appIDs": ["S9BMKRGHW7.com.AITest.HelloRule"],
         "components": [
           { "/": "/hellorule*" }
