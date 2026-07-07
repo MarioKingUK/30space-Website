@@ -3,6 +3,12 @@
     "apps": [],
     "details": [
       {
+        "appIDs": ["S9BMKRGHW7.com.AITest.DFChatA"],
+        "components": [
+          { "/": "/dfchata*" }
+        ]
+      },
+      {
         "appIDs": ["S9BMKRGHW7.com.AITest.DFChat"],
         "components": [
           { "/": "/dfchat*" }
