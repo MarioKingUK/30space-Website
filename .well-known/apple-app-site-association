@@ -3,6 +3,18 @@
     "apps": [],
     "details": [
       {
+        "appIDs": ["S9BMKRGHW7.com.AITest.PigCatA"],
+        "components": [
+          { "/": "/pigcata*" }
+        ]
+      },
+      {
+        "appIDs": ["S9BMKRGHW7.com.AITest.PigCat"],
+        "components": [
+          { "/": "/pigcat*" }
+        ]
+      },
+      {
         "appIDs": ["S9BMKRGHW7.com.AITest.DFChatA"],
         "components": [
           { "/": "/dfchata*" }
